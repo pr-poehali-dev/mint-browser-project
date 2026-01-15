@@ -2,11 +2,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Icon from "@/components/ui/icon";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type TabType = "home" | "history" | "bookmarks" | "settings";
 
@@ -17,12 +23,14 @@ const Index = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const quickAccessSites = [
-    { name: "Google", url: "google.com", icon: "Globe" },
-    { name: "YouTube", url: "youtube.com", icon: "Video" },
-    { name: "GitHub", url: "github.com", icon: "Code" },
-    { name: "Twitter", url: "twitter.com", icon: "Twitter" },
-    { name: "Reddit", url: "reddit.com", icon: "MessageSquare" },
-    { name: "LinkedIn", url: "linkedin.com", icon: "Briefcase" },
+    { name: "YouTube", url: "youtube.com", bgColor: "bg-red-100", iconColor: "text-red-600", icon: "Youtube" },
+    { name: "Почта", url: "mail.google.com", bgColor: "bg-blue-100", iconColor: "text-blue-600", icon: "Mail" },
+    { name: "Карты", url: "maps.google.com", bgColor: "bg-green-100", iconColor: "text-green-600", icon: "Map" },
+    { name: "Новости", url: "news.google.com", bgColor: "bg-yellow-100", iconColor: "text-yellow-600", icon: "Newspaper" },
+    { name: "Переводчик", url: "translate.google.com", bgColor: "bg-purple-100", iconColor: "text-purple-600", icon: "Languages" },
+    { name: "Фото", url: "photos.google.com", bgColor: "bg-pink-100", iconColor: "text-pink-600", icon: "Image" },
+    { name: "Диск", url: "drive.google.com", bgColor: "bg-indigo-100", iconColor: "text-indigo-600", icon: "HardDrive" },
+    { name: "Календарь", url: "calendar.google.com", bgColor: "bg-teal-100", iconColor: "text-teal-600", icon: "Calendar" },
   ];
 
   const historyItems = [
@@ -50,154 +58,219 @@ const Index = () => {
         { title: "MDN Web Docs", url: "developer.mozilla.org", icon: "Book" },
       ],
     },
-    {
-      name: "Развлечения",
-      bookmarks: [
-        { title: "YouTube", url: "youtube.com", icon: "Video" },
-        { title: "Spotify", url: "spotify.com", icon: "Music" },
-        { title: "Netflix", url: "netflix.com", icon: "Tv" },
-      ],
-    },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
-              <Icon name="Compass" className="text-white" size={24} />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800">MintBrowser</h1>
-          </div>
-          
-          <div className="flex gap-2">
-            <Button
-              variant={activeTab === "home" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveTab("home")}
-              className="gap-2"
-            >
-              <Icon name="Home" size={18} />
-              Главная
-            </Button>
-            <Button
-              variant={activeTab === "history" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveTab("history")}
-              className="gap-2"
-            >
-              <Icon name="Clock" size={18} />
-              История
-            </Button>
-            <Button
-              variant={activeTab === "bookmarks" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveTab("bookmarks")}
-              className="gap-2"
-            >
-              <Icon name="Star" size={18} />
-              Закладки
-            </Button>
-            <Button
-              variant={activeTab === "settings" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveTab("settings")}
-              className="gap-2"
-            >
-              <Icon name="Settings" size={18} />
-              Настройки
-            </Button>
-          </div>
-        </div>
-
+    <div className="min-h-screen bg-white">
+      <header className="fixed top-0 right-0 p-4 flex items-center gap-3 z-50">
         {activeTab === "home" && (
-          <div className="space-y-8 animate-fade-in">
-            <div className="flex items-center gap-3 max-w-4xl mx-auto">
-              <div className="flex-1 relative">
-                <Icon
-                  name="Search"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                  size={20}
-                />
+          <>
+            <Button variant="ghost" size="sm" className="text-gray-700 hover:bg-gray-100">
+              Почта
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-700 hover:bg-gray-100">
+              Картинки
+            </Button>
+          </>
+        )}
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
+              <Icon name="Grid3x3" className="text-gray-600" size={20} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80 p-4">
+            <div className="grid grid-cols-3 gap-4">
+              <button
+                onClick={() => setActiveTab("history")}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Icon name="Clock" className="text-blue-600" size={24} />
+                </div>
+                <span className="text-xs text-gray-700">История</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("bookmarks")}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
+                  <Icon name="Star" className="text-yellow-600" size={24} />
+                </div>
+                <span className="text-xs text-gray-700">Закладки</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("settings")}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                  <Icon name="Settings" className="text-gray-600" size={24} />
+                </div>
+                <span className="text-xs text-gray-700">Настройки</span>
+              </button>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
+              <Icon name="Bell" className="text-gray-600" size={20} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Нет новых уведомлений</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Avatar className="cursor-pointer border-2 border-gray-200 hover:border-gray-300 transition-colors">
+          <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" />
+          <AvatarFallback>U</AvatarFallback>
+        </Avatar>
+      </header>
+
+      {activeTab === "home" && (
+        <div className="flex flex-col items-center justify-center min-h-screen px-4">
+          <div className="w-full max-w-2xl space-y-8">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-1 mb-8">
+                <span className="text-7xl font-light text-[#4285f4]">M</span>
+                <span className="text-7xl font-light text-[#ea4335]">i</span>
+                <span className="text-7xl font-light text-[#fbbc04]">n</span>
+                <span className="text-7xl font-light text-[#4285f4]">t</span>
+                <span className="text-7xl font-light text-[#34a853]">B</span>
+                <span className="text-7xl font-light text-[#ea4335]">r</span>
+                <span className="text-7xl font-light text-[#4285f4]">o</span>
+                <span className="text-7xl font-light text-[#fbbc04]">w</span>
+                <span className="text-7xl font-light text-[#34a853]">s</span>
+                <span className="text-7xl font-light text-[#ea4335]">e</span>
+                <span className="text-7xl font-light text-[#4285f4]">r</span>
+              </div>
+            </div>
+
+            <div className="relative group">
+              <div className="absolute inset-0 rounded-full bg-white shadow-md group-hover:shadow-lg transition-shadow" />
+              <div className="relative flex items-center gap-3 px-6 py-4">
+                <Icon name="Search" className="text-gray-400" size={20} />
                 <Input
                   type="text"
-                  placeholder="Поиск в интернете или введите адрес"
+                  placeholder="Поиск в MintBrowser или введите URL"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-14 text-lg rounded-full shadow-md border-2 border-green-100 focus:border-green-400 transition-all"
+                  className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base bg-transparent"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery) {
+                      console.log('Search:', searchQuery);
+                    }
+                  }}
                 />
+                <Icon name="Mic" className="text-blue-500 cursor-pointer hover:bg-gray-100 rounded-full p-1" size={24} />
+                <Icon name="Camera" className="text-blue-500 cursor-pointer hover:bg-gray-100 rounded-full p-1" size={24} />
               </div>
-              <Button size="lg" className="rounded-full h-14 px-8 shadow-md">
-                <Icon name="ArrowRight" size={20} />
+            </div>
+
+            <div className="flex justify-center gap-3">
+              <Button variant="outline" className="bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700 px-6">
+                Поиск в MintBrowser
+              </Button>
+              <Button variant="outline" className="bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700 px-6">
+                Мне повезёт!
               </Button>
             </div>
 
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-lg font-semibold mb-4 text-gray-700">Быстрый доступ</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {quickAccessSites.map((site) => (
-                  <Card
-                    key={site.name}
-                    className="p-6 flex flex-col items-center gap-3 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 bg-white/80 backdrop-blur"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-                      <Icon name={site.icon as any} className="text-green-600" size={24} />
-                    </div>
-                    <div className="text-center">
-                      <p className="font-medium text-sm text-gray-800">{site.name}</p>
-                      <p className="text-xs text-gray-500">{site.url}</p>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+            <div className="grid grid-cols-4 gap-6 mt-16">
+              {quickAccessSites.map((site) => (
+                <button
+                  key={site.name}
+                  className="flex flex-col items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                >
+                  <div className={`w-14 h-14 rounded-full ${site.bgColor} flex items-center justify-center group-hover:shadow-md transition-shadow`}>
+                    <Icon name={site.icon as any} className={site.iconColor} size={28} />
+                  </div>
+                  <span className="text-sm text-gray-700 font-medium">{site.name}</span>
+                </button>
+              ))}
             </div>
           </div>
-        )}
 
-        {activeTab === "history" && (
-          <div className="max-w-4xl mx-auto animate-fade-in">
-            <Card className="p-6 bg-white/90 backdrop-blur shadow-lg">
+          <footer className="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200">
+            <div className="px-6 py-3 text-sm text-gray-600">
+              Россия
+            </div>
+            <Separator />
+            <div className="px-6 py-3 flex items-center justify-between text-sm text-gray-600">
+              <div className="flex gap-6">
+                <a href="#" className="hover:underline">Реклама</a>
+                <a href="#" className="hover:underline">Для Бизнеса</a>
+                <a href="#" className="hover:underline">Всё о MintBrowser</a>
+              </div>
+              <div className="flex gap-6">
+                <a href="#" className="hover:underline">Конфиденциальность</a>
+                <a href="#" className="hover:underline">Условия</a>
+                <a href="#" className="hover:underline">Настройки</a>
+              </div>
+            </div>
+          </footer>
+        </div>
+      )}
+
+      {activeTab === "history" && (
+        <div className="container mx-auto px-4 py-20">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-4 mb-8">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setActiveTab("home")}
+                className="rounded-full"
+              >
+                <Icon name="ArrowLeft" size={20} />
+              </Button>
+              <h1 className="text-3xl font-normal text-gray-800">История</h1>
+            </div>
+
+            <Card className="p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">История посещений</h2>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Поиск в истории..."
-                    className="w-64"
-                  />
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Icon name="Trash2" size={16} />
-                    Очистить
-                  </Button>
-                </div>
+                <Input
+                  placeholder="Поиск в истории..."
+                  className="max-w-md"
+                />
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Icon name="Trash2" size={16} />
+                  Очистить историю
+                </Button>
               </div>
 
-              <ScrollArea className="h-[500px]">
-                <div className="space-y-6">
+              <ScrollArea className="h-[600px]">
+                <div className="space-y-8">
                   {Array.from(new Set(historyItems.map(item => item.date))).map((date) => (
                     <div key={date}>
-                      <h3 className="text-sm font-semibold text-gray-600 mb-3 flex items-center gap-2">
+                      <h3 className="text-sm font-medium text-gray-500 mb-4 flex items-center gap-2">
                         <Icon name="Calendar" size={16} />
                         {date}
                       </h3>
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         {historyItems
                           .filter((item) => item.date === date)
                           .map((item, idx) => (
                             <div
                               key={idx}
-                              className="flex items-center gap-4 p-3 rounded-lg hover:bg-green-50 transition-colors cursor-pointer group"
+                              className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                             >
-                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center flex-shrink-0">
-                                <Icon name="Globe" className="text-green-600" size={20} />
+                              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                <Icon name="Globe" className="text-gray-500" size={16} />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-800 truncate group-hover:text-green-600 transition-colors">
+                                <p className="font-normal text-gray-900 truncate text-sm">
                                   {item.title}
                                 </p>
-                                <p className="text-sm text-gray-500 truncate">{item.url}</p>
+                                <p className="text-xs text-blue-600 truncate hover:underline">{item.url}</p>
                               </div>
-                              <span className="text-sm text-gray-400 flex-shrink-0">{item.time}</span>
+                              <span className="text-xs text-gray-400 flex-shrink-0">{item.time}</span>
+                              <Button variant="ghost" size="icon" className="flex-shrink-0 rounded-full">
+                                <Icon name="MoreVertical" size={16} className="text-gray-400" />
+                              </Button>
                             </div>
                           ))}
                       </div>
@@ -207,40 +280,52 @@ const Index = () => {
               </ScrollArea>
             </Card>
           </div>
-        )}
+        </div>
+      )}
 
-        {activeTab === "bookmarks" && (
-          <div className="max-w-4xl mx-auto animate-fade-in">
-            <Card className="p-6 bg-white/90 backdrop-blur shadow-lg">
+      {activeTab === "bookmarks" && (
+        <div className="container mx-auto px-4 py-20">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-4 mb-8">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setActiveTab("home")}
+                className="rounded-full"
+              >
+                <Icon name="ArrowLeft" size={20} />
+              </Button>
+              <h1 className="text-3xl font-normal text-gray-800">Закладки</h1>
+            </div>
+
+            <Card className="p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Закладки</h2>
-                <Button className="gap-2">
+                <h2 className="text-lg font-medium text-gray-800">Мои закладки</h2>
+                <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
                   <Icon name="Plus" size={18} />
                   Добавить папку
                 </Button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {bookmarkFolders.map((folder) => (
                   <div key={folder.name}>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                        <Icon name="Folder" className="text-white" size={18} />
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-800">{folder.name}</h3>
+                      <Icon name="Folder" className="text-gray-500" size={20} />
+                      <h3 className="text-base font-medium text-gray-800">{folder.name}</h3>
                       <span className="text-sm text-gray-400">({folder.bookmarks.length})</span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 ml-11">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 ml-8">
                       {folder.bookmarks.map((bookmark, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-green-400 hover:shadow-md transition-all cursor-pointer group bg-white"
+                          className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                         >
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center flex-shrink-0">
-                            <Icon name={bookmark.icon as any} className="text-green-600" size={20} />
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                            <Icon name={bookmark.icon as any} className="text-gray-600" size={16} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-800 truncate text-sm group-hover:text-green-600 transition-colors">
+                            <p className="font-normal text-gray-800 truncate text-sm">
                               {bookmark.title}
                             </p>
                             <p className="text-xs text-gray-500 truncate">{bookmark.url}</p>
@@ -253,38 +338,50 @@ const Index = () => {
               </div>
             </Card>
           </div>
-        )}
+        </div>
+      )}
 
-        {activeTab === "settings" && (
-          <div className="max-w-4xl mx-auto animate-fade-in">
-            <Card className="p-6 bg-white/90 backdrop-blur shadow-lg">
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">Настройки</h2>
+      {activeTab === "settings" && (
+        <div className="container mx-auto px-4 py-20">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-4 mb-8">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setActiveTab("home")}
+                className="rounded-full"
+              >
+                <Icon name="ArrowLeft" size={20} />
+              </Button>
+              <h1 className="text-3xl font-normal text-gray-800">Настройки</h1>
+            </div>
 
-              <div className="space-y-6">
+            <Card className="p-6 shadow-sm">
+              <div className="space-y-8">
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-700">
+                  <h3 className="text-base font-medium mb-4 flex items-center gap-2 text-gray-800">
                     <Icon name="Shield" size={20} />
                     Приватность и безопасность
                   </h3>
-                  <div className="space-y-4 ml-7">
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-green-50 hover:bg-green-100 transition-colors">
+                  <div className="space-y-3 ml-7">
+                    <div className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
                       <div>
-                        <p className="font-medium text-gray-800">Блокировка рекламы</p>
-                        <p className="text-sm text-gray-600">Автоматически блокировать всплывающую рекламу</p>
+                        <p className="font-normal text-gray-800 text-sm">Блокировка рекламы</p>
+                        <p className="text-xs text-gray-500">Автоматически блокировать рекламу</p>
                       </div>
                       <Switch defaultChecked />
                     </div>
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-green-50 hover:bg-green-100 transition-colors">
+                    <div className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
                       <div>
-                        <p className="font-medium text-gray-800">Режим инкогнито по умолчанию</p>
-                        <p className="text-sm text-gray-600">Не сохранять историю посещений</p>
+                        <p className="font-normal text-gray-800 text-sm">Режим инкогнито</p>
+                        <p className="text-xs text-gray-500">Не сохранять историю</p>
                       </div>
                       <Switch />
                     </div>
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-green-50 hover:bg-green-100 transition-colors">
+                    <div className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
                       <div>
-                        <p className="font-medium text-gray-800">Защита от отслеживания</p>
-                        <p className="text-sm text-gray-600">Блокировать трекеры сторонних сайтов</p>
+                        <p className="font-normal text-gray-800 text-sm">Защита от отслеживания</p>
+                        <p className="text-xs text-gray-500">Блокировать трекеры</p>
                       </div>
                       <Switch defaultChecked />
                     </div>
@@ -294,24 +391,17 @@ const Index = () => {
                 <Separator />
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-700">
+                  <h3 className="text-base font-medium mb-4 flex items-center gap-2 text-gray-800">
                     <Icon name="Palette" size={20} />
                     Внешний вид
                   </h3>
-                  <div className="space-y-4 ml-7">
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-green-50 hover:bg-green-100 transition-colors">
+                  <div className="space-y-3 ml-7">
+                    <div className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
                       <div>
-                        <p className="font-medium text-gray-800">Темная тема</p>
-                        <p className="text-sm text-gray-600">Включить темное оформление интерфейса</p>
+                        <p className="font-normal text-gray-800 text-sm">Темная тема</p>
+                        <p className="text-xs text-gray-500">Темное оформление</p>
                       </div>
                       <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-                    </div>
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-green-50 hover:bg-green-100 transition-colors">
-                      <div>
-                        <p className="font-medium text-gray-800">Компактный режим</p>
-                        <p className="text-sm text-gray-600">Уменьшить размер элементов интерфейса</p>
-                      </div>
-                      <Switch />
                     </div>
                   </div>
                 </div>
@@ -319,45 +409,41 @@ const Index = () => {
                 <Separator />
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-700">
+                  <h3 className="text-base font-medium mb-4 flex items-center gap-2 text-gray-800">
                     <Icon name="RefreshCw" size={20} />
                     Синхронизация
                   </h3>
-                  <div className="space-y-4 ml-7">
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 transition-colors border-2 border-green-200">
+                  <div className="space-y-3 ml-7">
+                    <div className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors border border-blue-100">
                       <div>
-                        <p className="font-medium text-gray-800 flex items-center gap-2">
+                        <p className="font-normal text-gray-800 text-sm flex items-center gap-2">
                           Синхронизация данных
-                          <Icon name="CloudUpload" size={16} className="text-green-600" />
+                          <Icon name="CloudUpload" size={14} className="text-blue-600" />
                         </p>
-                        <p className="text-sm text-gray-600">Синхронизировать историю, закладки и настройки между устройствами</p>
+                        <p className="text-xs text-gray-500">Синхронизация между устройствами</p>
                       </div>
                       <Switch checked={syncEnabled} onCheckedChange={setSyncEnabled} />
                     </div>
                     {syncEnabled && (
-                      <div className="p-4 rounded-lg bg-white border border-green-200 ml-4">
-                        <p className="text-sm font-medium text-gray-700 mb-2">Синхронизируются:</p>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Icon name="Check" size={16} className="text-green-500" />
+                      <div className="p-4 rounded-lg bg-blue-50 ml-4 border border-blue-100">
+                        <p className="text-xs font-medium text-gray-700 mb-2">Синхронизируются:</p>
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <Icon name="Check" size={14} className="text-blue-600" />
                             История посещений
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Icon name="Check" size={16} className="text-green-500" />
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <Icon name="Check" size={14} className="text-blue-600" />
                             Закладки и папки
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Icon name="Check" size={16} className="text-green-500" />
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <Icon name="Check" size={14} className="text-blue-600" />
                             Настройки браузера
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Icon name="Check" size={16} className="text-green-500" />
-                            Открытые вкладки
-                          </div>
                         </div>
-                        <p className="text-xs text-green-600 mt-3 flex items-center gap-1">
-                          <Icon name="Wifi" size={14} />
-                          Последняя синхронизация: только что
+                        <p className="text-xs text-blue-600 mt-3 flex items-center gap-1">
+                          <Icon name="Wifi" size={12} />
+                          Синхронизировано только что
                         </p>
                       </div>
                     )}
@@ -366,8 +452,8 @@ const Index = () => {
               </div>
             </Card>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
