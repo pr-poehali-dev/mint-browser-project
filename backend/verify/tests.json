@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Verify with valid code",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "userId": 1,
+        "code": "123456"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing fields",
+      "method": "POST",
+      "path": "/",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
