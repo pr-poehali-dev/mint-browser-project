@@ -1,0 +1,3 @@
+# mint-browser-project
+
+Initial repository setup for pr-poehali-dev/mint-browser-project
