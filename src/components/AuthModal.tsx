@@ -19,116 +19,67 @@ interface AuthModalProps {
 }
 
 const AuthModal = ({ open, onOpenChange, onAuthSuccess }: AuthModalProps) => {
-  const [mode, setMode] = useState<"login" | "register" | "verify">("login");
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [tempUserId, setTempUserId] = useState("");
 
-  const handleRegister = async () => {
+  const handleRegister = () => {
     if (!email || !password || !name) {
       setError("Заполните все поля");
       return;
     }
 
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch("https://functions.poehali.dev/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Ошибка регистрации");
-      }
-
-      setTempUserId(data.userId);
-      setMode("verify");
-      setError("");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerify = async () => {
-    if (!verificationCode) {
-      setError("Введите код подтверждения");
+    if (password.length < 6) {
+      setError("Пароль должен быть минимум 6 символов");
       return;
     }
 
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch("https://functions.poehali.dev/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: tempUserId, code: verificationCode }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Неверный код");
-      }
-
-      onAuthSuccess({ email, name });
-      onOpenChange(false);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    const users = JSON.parse(localStorage.getItem("mintbrowser_users") || "[]");
+    
+    if (users.find((u: any) => u.email === email)) {
+      setError("Этот email уже зарегистрирован");
+      return;
     }
+
+    const newUser = { email, password, name };
+    users.push(newUser);
+    localStorage.setItem("mintbrowser_users", JSON.stringify(users));
+    localStorage.setItem("mintbrowser_current_user", JSON.stringify({ email, name }));
+
+    onAuthSuccess({ email, name });
+    onOpenChange(false);
+    resetForm();
   };
 
-  const handleLogin = async () => {
+
+
+  const handleLogin = () => {
     if (!email || !password) {
       setError("Заполните все поля");
       return;
     }
 
-    setLoading(true);
-    setError("");
+    const users = JSON.parse(localStorage.getItem("mintbrowser_users") || "[]");
+    const user = users.find((u: any) => u.email === email && u.password === password);
 
-    try {
-      const response = await fetch("https://functions.poehali.dev/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Ошибка входа");
-      }
-
-      onAuthSuccess(data.user);
-      onOpenChange(false);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (!user) {
+      setError("Неверный email или пароль");
+      return;
     }
+
+    localStorage.setItem("mintbrowser_current_user", JSON.stringify({ email: user.email, name: user.name }));
+    onAuthSuccess({ email: user.email, name: user.name });
+    onOpenChange(false);
+    resetForm();
   };
 
   const resetForm = () => {
     setEmail("");
     setPassword("");
     setName("");
-    setVerificationCode("");
     setError("");
-    setTempUserId("");
   };
 
   const switchMode = (newMode: "login" | "register") => {
@@ -141,59 +92,16 @@ const AuthModal = ({ open, onOpenChange, onAuthSuccess }: AuthModalProps) => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-normal text-center">
-            {mode === "login" && "Войти"}
-            {mode === "register" && "Регистрация"}
-            {mode === "verify" && "Подтверждение email"}
+            {mode === "login" ? "Войти" : "Регистрация"}
           </DialogTitle>
           <DialogDescription className="text-center">
-            {mode === "login" && "Введите свои данные для входа"}
-            {mode === "register" && "Создайте аккаунт MintBrowser"}
-            {mode === "verify" && `Код отправлен на ${email}`}
+            {mode === "login" 
+              ? "Введите свои данные для входа" 
+              : "Создайте аккаунт MintBrowser"}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          {mode === "verify" ? (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="code">Код подтверждения</Label>
-                <Input
-                  id="code"
-                  type="text"
-                  placeholder="Введите 6-значный код"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  maxLength={6}
-                />
-              </div>
-
-              {error && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-                  <p className="text-sm text-red-600 flex items-center gap-2">
-                    <Icon name="AlertCircle" size={16} />
-                    {error}
-                  </p>
-                </div>
-              )}
-
-              <Button
-                onClick={handleVerify}
-                disabled={loading}
-                className="w-full bg-primary hover:bg-primary/90"
-              >
-                {loading ? "Проверка..." : "Подтвердить"}
-              </Button>
-
-              <Button
-                variant="ghost"
-                onClick={() => setMode("register")}
-                className="w-full"
-              >
-                Отправить код повторно
-              </Button>
-            </>
-          ) : (
-            <>
               {mode === "register" && (
                 <div className="space-y-2">
                   <Label htmlFor="name">Имя</Label>
@@ -238,43 +146,36 @@ const AuthModal = ({ open, onOpenChange, onAuthSuccess }: AuthModalProps) => {
                 </div>
               )}
 
-              <Button
-                onClick={mode === "login" ? handleLogin : handleRegister}
-                disabled={loading}
-                className="w-full bg-primary hover:bg-primary/90"
-              >
-                {loading
-                  ? "Загрузка..."
-                  : mode === "login"
-                  ? "Войти"
-                  : "Зарегистрироваться"}
-              </Button>
+          <Button
+            onClick={mode === "login" ? handleLogin : handleRegister}
+            className="w-full bg-primary hover:bg-primary/90"
+          >
+            {mode === "login" ? "Войти" : "Зарегистрироваться"}
+          </Button>
 
-              <div className="text-center text-sm text-gray-600">
-                {mode === "login" ? (
-                  <>
-                    Нет аккаунта?{" "}
-                    <button
-                      onClick={() => switchMode("register")}
-                      className="text-primary hover:underline font-medium"
-                    >
-                      Зарегистрироваться
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    Уже есть аккаунт?{" "}
-                    <button
-                      onClick={() => switchMode("login")}
-                      className="text-primary hover:underline font-medium"
-                    >
-                      Войти
-                    </button>
-                  </>
-                )}
-              </div>
-            </>
-          )}
+          <div className="text-center text-sm text-gray-600">
+            {mode === "login" ? (
+              <>
+                Нет аккаунта?{" "}
+                <button
+                  onClick={() => switchMode("register")}
+                  className="text-primary hover:underline font-medium"
+                >
+                  Зарегистрироваться
+                </button>
+              </>
+            ) : (
+              <>
+                Уже есть аккаунт?{" "}
+                <button
+                  onClick={() => switchMode("login")}
+                  className="text-primary hover:underline font-medium"
+                >
+                  Войти
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

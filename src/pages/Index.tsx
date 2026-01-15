@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import AuthModal from "@/components/AuthModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -21,16 +22,36 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [syncEnabled, setSyncEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ email: string; name: string } | null>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("mintbrowser_current_user");
+    if (user) {
+      setCurrentUser(JSON.parse(user));
+    }
+  }, []);
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      window.open(`https://duckduckgo.com/?q=${encodeURIComponent(searchQuery)}`, '_blank');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("mintbrowser_current_user");
+    setCurrentUser(null);
+  };
 
   const quickAccessSites = [
-    { name: "YouTube", url: "youtube.com", bgColor: "bg-red-100", iconColor: "text-red-600", icon: "Youtube" },
-    { name: "Почта", url: "mail.google.com", bgColor: "bg-blue-100", iconColor: "text-blue-600", icon: "Mail" },
-    { name: "Карты", url: "maps.google.com", bgColor: "bg-green-100", iconColor: "text-green-600", icon: "Map" },
-    { name: "Новости", url: "news.google.com", bgColor: "bg-yellow-100", iconColor: "text-yellow-600", icon: "Newspaper" },
-    { name: "Переводчик", url: "translate.google.com", bgColor: "bg-purple-100", iconColor: "text-purple-600", icon: "Languages" },
-    { name: "Фото", url: "photos.google.com", bgColor: "bg-pink-100", iconColor: "text-pink-600", icon: "Image" },
-    { name: "Диск", url: "drive.google.com", bgColor: "bg-indigo-100", iconColor: "text-indigo-600", icon: "HardDrive" },
-    { name: "Календарь", url: "calendar.google.com", bgColor: "bg-teal-100", iconColor: "text-teal-600", icon: "Calendar" },
+    { name: "YouTube", url: "https://youtube.com", bgColor: "bg-emerald-50", iconColor: "text-emerald-600", icon: "Youtube" },
+    { name: "Почта", url: "https://mail.google.com", bgColor: "bg-emerald-100", iconColor: "text-emerald-700", icon: "Mail" },
+    { name: "Карты", url: "https://maps.google.com", bgColor: "bg-green-50", iconColor: "text-green-600", icon: "Map" },
+    { name: "Новости", url: "https://news.google.com", bgColor: "bg-green-100", iconColor: "text-green-700", icon: "Newspaper" },
+    { name: "Переводчик", url: "https://translate.google.com", bgColor: "bg-teal-50", iconColor: "text-teal-600", icon: "Languages" },
+    { name: "Фото", url: "https://photos.google.com", bgColor: "bg-teal-100", iconColor: "text-teal-700", icon: "Image" },
+    { name: "Диск", url: "https://drive.google.com", bgColor: "bg-emerald-50", iconColor: "text-emerald-600", icon: "HardDrive" },
+    { name: "Календарь", url: "https://calendar.google.com", bgColor: "bg-green-50", iconColor: "text-green-600", icon: "Calendar" },
   ];
 
   const historyItems = [
@@ -113,39 +134,59 @@ const Index = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
-              <Icon name="Bell" className="text-gray-600" size={20} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Нет новых уведомлений</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <Avatar className="cursor-pointer border-2 border-gray-200 hover:border-gray-300 transition-colors">
-          <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" />
-          <AvatarFallback>U</AvatarFallback>
-        </Avatar>
+        {currentUser ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="cursor-pointer border-2 border-primary hover:border-primary/80 transition-colors">
+                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.email}`} />
+                <AvatarFallback className="bg-primary text-white">{currentUser.name[0]}</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="p-2">
+                <p className="font-medium text-sm">{currentUser.name}</p>
+                <p className="text-xs text-gray-500">{currentUser.email}</p>
+              </div>
+              <Separator className="my-1" />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+                <Icon name="LogOut" size={16} className="mr-2" />
+                Выйти
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button 
+            onClick={() => setShowAuthModal(true)}
+            variant="outline" 
+            className="border-primary text-primary hover:bg-primary hover:text-white"
+          >
+            Войти
+          </Button>
+        )}
       </header>
+
+      <AuthModal 
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        onAuthSuccess={(user) => setCurrentUser(user)}
+      />
 
       {activeTab === "home" && (
         <div className="flex flex-col items-center justify-center min-h-screen px-4">
           <div className="w-full max-w-2xl space-y-8">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-1 mb-8">
-                <span className="text-7xl font-light text-[#4285f4]">M</span>
-                <span className="text-7xl font-light text-[#ea4335]">i</span>
-                <span className="text-7xl font-light text-[#fbbc04]">n</span>
-                <span className="text-7xl font-light text-[#4285f4]">t</span>
-                <span className="text-7xl font-light text-[#34a853]">B</span>
-                <span className="text-7xl font-light text-[#ea4335]">r</span>
-                <span className="text-7xl font-light text-[#4285f4]">o</span>
-                <span className="text-7xl font-light text-[#fbbc04]">w</span>
-                <span className="text-7xl font-light text-[#34a853]">s</span>
-                <span className="text-7xl font-light text-[#ea4335]">e</span>
-                <span className="text-7xl font-light text-[#4285f4]">r</span>
+                <span className="text-7xl font-light text-primary">M</span>
+                <span className="text-7xl font-light text-emerald-500">i</span>
+                <span className="text-7xl font-light text-green-500">n</span>
+                <span className="text-7xl font-light text-primary">t</span>
+                <span className="text-7xl font-light text-emerald-600">B</span>
+                <span className="text-7xl font-light text-green-600">r</span>
+                <span className="text-7xl font-light text-primary">o</span>
+                <span className="text-7xl font-light text-emerald-500">w</span>
+                <span className="text-7xl font-light text-green-500">s</span>
+                <span className="text-7xl font-light text-primary">e</span>
+                <span className="text-7xl font-light text-emerald-600">r</span>
               </div>
             </div>
 
@@ -160,21 +201,29 @@ const Index = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base bg-transparent"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && searchQuery) {
-                      console.log('Search:', searchQuery);
+                    if (e.key === 'Enter') {
+                      handleSearch();
                     }
                   }}
                 />
-                <Icon name="Mic" className="text-blue-500 cursor-pointer hover:bg-gray-100 rounded-full p-1" size={24} />
-                <Icon name="Camera" className="text-blue-500 cursor-pointer hover:bg-gray-100 rounded-full p-1" size={24} />
+                <Icon name="Mic" className="text-primary cursor-pointer hover:bg-primary/10 rounded-full p-1" size={24} />
+                <Icon name="Camera" className="text-primary cursor-pointer hover:bg-primary/10 rounded-full p-1" size={24} />
               </div>
             </div>
 
             <div className="flex justify-center gap-3">
-              <Button variant="outline" className="bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700 px-6">
+              <Button 
+                onClick={handleSearch}
+                variant="outline" 
+                className="bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700 px-6"
+              >
                 Поиск в MintBrowser
               </Button>
-              <Button variant="outline" className="bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700 px-6">
+              <Button 
+                onClick={handleSearch}
+                variant="outline" 
+                className="bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700 px-6"
+              >
                 Мне повезёт!
               </Button>
             </div>
@@ -183,7 +232,8 @@ const Index = () => {
               {quickAccessSites.map((site) => (
                 <button
                   key={site.name}
-                  className="flex flex-col items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                  onClick={() => window.open(site.url, '_blank')}
+                  className="flex flex-col items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer"
                 >
                   <div className={`w-14 h-14 rounded-full ${site.bgColor} flex items-center justify-center group-hover:shadow-md transition-shadow`}>
                     <Icon name={site.icon as any} className={site.iconColor} size={28} />
